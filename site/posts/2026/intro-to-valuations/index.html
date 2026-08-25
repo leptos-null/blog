@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An intuitive introduction to company valuation, built up from simple examples: the value of eggs, a hen, and a small business.">
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2026-08-25">
+  <title>Intro to Valuations</title>
+  <link rel="stylesheet" href="../../../styles/post.css">
+</head>
+
+<body>
+  <main>
+    <article>
+      <h1>Intro to Valuations</h1>
+
+      <p class="post-date"><time datetime="2026-08-25">August 25, 2026</time></p>
+
+      <p>You may have heard of a private company being acquired (purchased) for $100 million, or $2 billion. Or a public company is valued at $70 billion. In this article, I seek to answer the question: Where do these numbers come from?</p>
+
+      <h2>Value of food</h2>
+
+      <p>Clara uses about 10 eggs a week. Sometimes she makes scrambled eggs, sometimes she makes her own pasta. Clara pays $0.50 per egg. She's happy to pay this price to have some variety in her breakfasts.</p>
+
+      <p>I start with this example to establish that there are goods and services that people value. Sometimes when we look at the modern economy, we may feel that it's all made up &mdash; I hope this example demonstrates that at least some things do have value. (Even if we imagine a society that is highly communal, does not utilize currency, or think in terms of capital, that society still needs food at the very least, and probably enjoys other goods and services.)</p>
+
+      <h2>Value of a hen</h2>
+
+      <p>Clara lives on a fairly large field and she's considering getting some chickens of her own so she doesn't have to buy eggs. She figures the walk to and from the farm once a week is probably the same amount of time it would take to collect the eggs each morning.</p>
+
+      <p>Not knowing much else about chickens, Clara asks the farmers how many eggs a hen lays. The farmer replies: &ldquo;It depends. Maybe about 5 or 6 a week for 2 years.&rdquo;</p>
+
+      <p>Since Clara doesn't have any other costs to having the hens (they'll be able to eat grains and other food already in her field, and she's already accounted for the time spent to collect the eggs), she can <em>value</em> each hen at: 5 eggs per week times 52 weeks per year times 2 years equals 520 eggs (at $0.50 per egg, that's $260).</p>
+
+      <figure>
+        <p class="chart-title">Eggs laid per week, by hen age</p>
+        <picture>
+          <source srcset="assets/eggs_full-dark.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+          <source srcset="assets/eggs_full-dark.png" media="(prefers-color-scheme: dark)">
+          <source srcset="assets/eggs_full-light.avif" type="image/avif">
+          <img src="assets/eggs_full-light.png" width="2880" height="1800" alt="Bar chart of Clara's model of hen value in eggs, over the full range from 0 to 124 weeks old. The value is 0 until 20 weeks (when a hen starts laying eggs), then constant at 5 eggs per week until 120 weeks, then drops to 0.">
+        </picture>
+        <figcaption>Hens start laying eggs around 20 weeks old.</figcaption>
+      </figure>
+
+      <p>Clara can use this model to determine how much she's willing to pay for a hen of any given age. For any hen up to the age of 20 weeks, Clara would get $260 worth of eggs.</p>
+
+      <p>Now let's say Clara is offered a hen that's 1 year (52 weeks) old:</p>
+
+      <figure>
+        <p class="chart-title">Eggs laid per week, hen received at 52 weeks</p>
+        <picture>
+          <source srcset="assets/eggs_52weeks-dark.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+          <source srcset="assets/eggs_52weeks-dark.png" media="(prefers-color-scheme: dark)">
+          <source srcset="assets/eggs_52weeks-light.avif" type="image/avif">
+          <img src="assets/eggs_52weeks-light.png" width="2880" height="1800" alt="The same hen value chart, highlighting the remaining egg-laying value from age 52 weeks (when Clara would receive the hen) to 124 weeks.">
+        </picture>
+      </figure>
+
+      <p>Clara thinks the hen would lay eggs from 52 weeks (when she receives the hen) to 124 weeks old. That's
+        <math display="inline">
+          <mrow>
+            <mn>124</mn>
+            <mo>&minus;</mo>
+            <mn>52</mn>
+            <mo>=</mo>
+            <mn>72</mn>
+          </mrow>
+        </math>
+        weeks times 5 eggs per week is 360 eggs (at $0.50 per egg, that's $180).
+      </p>
+
+      <p>In this section, we've seen how Clara could value a hen. If a hen did not lay eggs, she wouldn't have much interest in a hen, however since a hen does provide her with eggs (which she wants), she values having a hen.</p>
+
+      <h2>Value of a business</h2>
+
+      <p>Clara started building as a hobby. She built a seesaw, a small &ldquo;merry-go-round&rdquo;, a bench, and other projects like this. She has them in her front yard, and when people came over, kids seemed to enjoy playing with these items that she's built. She decided to build a fence around her yard (it's a large front yard) so kids could run around without the adults worrying too much.</p>
+
+      <p>A few years ago, Clara decided to open this play area to the public: she charges $5 per child per hour. Adults can stay with their kids in the play area, or they can drop off their kids and come back. Clara has a great reputation amongst the town of keeping the kids safe.</p>
+
+      <p>Clara is reviewing how much money people have paid for the play area in the last year, on a weekly basis:</p>
+
+      <figure>
+        <p class="chart-title">Play area revenue per week</p>
+        <picture>
+          <source srcset="assets/play_area-dark.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+          <source srcset="assets/play_area-dark.png" media="(prefers-color-scheme: dark)">
+          <source srcset="assets/play_area-light.avif" type="image/avif">
+          <img src="assets/play_area-light.png" width="2880" height="1800" alt="Bar chart of weekly revenue from Clara's play area over 52 weeks, showing noticeably lower revenue during the colder weeks of the year.">
+        </picture>
+      </figure>
+
+      <p>During the colder days, there are noticeably fewer kids that come out to the play area.</p>
+
+      <p>The technical term for &ldquo;how much money people have paid&rdquo; is &ldquo;revenue&rdquo;. If we add up all 52 weeks in this chart, we see that the play area has generated $79,605 in revenue.</p>
+
+      <p>Clara spent $500 over the year to keep the play area looking nice (upkeep).</p>
+
+      <p>Intuitively, Clara can keep all of the remaining money, after paying for the upkeep. However, in order to reasonably value the play area as a business, she must value her time as an employee. Clara uses the following reasoning: &ldquo;If I were to hire someone to do the work I've been doing- keeping an eye on the kids and maintaining the play area- how much would I pay that person?&rdquo; In this reasoning, Clara is thinking of herself as the business owner, hiring an employee. She has effectively hired herself. Clara thinks it would be fair to pay herself $1,250 per week, which comes out to $65,000 per year.</p>
+
+      <p>Here's the accounting for the year:</p>
+
+      <table class="value-table">
+        <thead>
+          <tr>
+            <th scope="col">Description</th>
+            <th scope="col">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Revenue</td>
+            <td>&plus;$79,605</td>
+          </tr>
+          <tr>
+            <td>Clara (salary)</td>
+            <td>&minus;$65,000</td>
+          </tr>
+          <tr>
+            <td>Upkeep</td>
+            <td>&minus;$500</td>
+          </tr>
+          <tr class="total-row">
+            <td>Profit</td>
+            <td>&plus;$14,105</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>&ldquo;Profit&rdquo; is the technical term for money that's left over after paying all the expenses. In this case, Clara's salary and the upkeep are expenses.</p>
+
+      <p>So, the play area generated $14,105 in profits for the year. Clara estimates that the play area can continue to generate this profit for about 5 years. After that, maybe there's something else that people will be interested in and interest in the play area will dwindle.</p>
+
+      <p>Using this logic, the value of the play area (as a company) would be: $14,105 per year times 5 years equals $70,525.</p>
+
+      <p>The owner of a company collects the profits from the company. Similar to whomever owned the hen would collect the eggs that the hen laid.</p>
+
+      <p>Why would someone purchase a company? With a hen, you're paying for a hen, and then over time the hen gives you eggs, which have underlying value. With a company, you're paying for a company, and over time the company gives you&hellip; the same amount of money. This doesn't yet seem like a very enticing trade.</p>
+
+      <p>A traveler, Jenny, comes through the town and visits Clara's play area. Jenny runs a similar outdoor business in her town where children often come to play. Jenny sells watermelon at her business during the summer. Jenny thinks if Clara's play area were to sell watermelon during the summer as well, it would bring in an additional $1,200 a year in profit. Using Clara's projection of 5 years, that would be an additional $1,200 a year times 5 years equals $6,000. Adding that to Clara's original estimate of $70,525, Jenny's valuation is $76,525.</p>
+
+      <p>Jenny could ask Clara if she would like to sell her business to Jenny for $75,000. Clara would likely agree, since that's more than the $70,525 Clara is currently expecting the business will generate.</p>
+
+      <p>In this section, we've valued a business by adding up all of the profits we expect that business to generate over its lifetime.</p>
+    </article>
+  </main>
+</body>
+
+</html>
