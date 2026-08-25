@@ -1,0 +1,40 @@
+# Originally based on
+# <https://github.com/leptos-null/Vermilion/blob/27ae151441a5f0b4667399495d420bd5f591f148/.github/workflows/deploy.yml>
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: "github-pages"
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+      - name: Remove _workbench directories
+        run: |
+          find site -type d -name '_workbench' -prune -print -exec rm -rf {} +
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: 'site'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
