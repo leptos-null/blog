@@ -35,7 +35,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, "Not Found")
             return None
 
-        if "_workbench" in self.path.split("/"):
+        # Only block "_workbench" as a directory component; if it's the last component,
+        # it may be a file named "_workbench" itself, so let that fall through to the normal file lookup.
+        # If the last component is actually a directory, the base handler 301-redirects to
+        # add a trailing slash, which means "_workbench" is no longer the last path component,
+        # so it still ends up blocked (404) here.
+        path_components = self.path.split("/")
+        if "_workbench" in path_components[:-1]:
             self.send_error(404, "Not Found")
             return None
 
