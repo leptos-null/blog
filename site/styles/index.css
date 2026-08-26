@@ -1,7 +1,5 @@
 main {
-  max-width: 56rem;
-  margin: 0 auto;
-  padding: 3rem 1.25rem 5rem;
+  padding-top: 3rem;
 }
 
 .post-list {
@@ -18,7 +16,6 @@ main {
   display: inline;
   margin: 0;
   font-size: inherit;
-  letter-spacing: normal;
 }
 
 .post-list a {

@@ -29,10 +29,23 @@ body {
   line-height: 1.6;
 }
 
-article {
+header,
+main {
   max-width: 56rem;
   margin: 0 auto;
-  padding: 3rem 1.25rem 5rem;
+  padding: 0 1.25rem;
+}
+
+main {
+  padding-bottom: 5rem;
+}
+
+nav {
+  margin-top: 2rem;
+}
+
+article {
+  padding-top: 2rem;
 }
 
 h1 {
