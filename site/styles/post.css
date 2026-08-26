@@ -42,6 +42,7 @@ h1 {
 }
 
 .post-date {
+  display: block;
   color: var(--fg-muted);
   font-size: 0.9rem;
   margin: 0 0 2rem;
@@ -80,7 +81,7 @@ figure {
 }
 
 .chart-title {
-  margin: 0 0 0.35rem;
+  margin: 0;
   font-weight: 600;
   font-size: 0.85rem;
 }
