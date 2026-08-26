@@ -40,14 +40,11 @@ main {
 
 body > header {
   padding-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 main {
   padding-bottom: 5rem;
-}
-
-article {
-  padding-top: 2rem;
 }
 
 h1 {
