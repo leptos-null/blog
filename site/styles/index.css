@@ -15,11 +15,10 @@ main {
 .post-list h2 {
   display: inline;
   margin: 0;
-  font-size: inherit;
+  font-size: 1.125rem;
 }
 
 .post-list a {
-  font-size: 1.125rem;
   font-weight: 600;
   text-decoration: none;
 }
