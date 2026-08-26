@@ -11,3 +11,10 @@ Such supporting materials can be placed within a folder named `_workbench` anywh
 
 Generally, the path of a blog post follows the format `site/posts/{YYYY}/{short-title}`. A post is a directory with an `index.html` file.
 Additional assets that are specific to the post (and should be served) should also go in this directory.
+
+## AI Policy
+
+I write all of the content (i.e. "prose") for the blog posts themselves.
+
+In this repo, I may use AI tools (e.g. Claude) to write HTML, CSS, and similar supporting infrastructure.
+I may also use AI tools to write `alt` text for images.
