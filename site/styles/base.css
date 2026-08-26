@@ -123,6 +123,10 @@ td {
   border-bottom: 1px solid var(--border);
 }
 
+th[scope="row"] {
+  font-weight: inherit;
+}
+
 .value-table td:last-child,
 .value-table th:last-child {
   text-align: right;
@@ -130,7 +134,8 @@ td {
   padding-left: 1.5rem;
 }
 
-.total-row td {
+.total-row td,
+.total-row th {
   border-top: 1px solid var(--fg);
   border-bottom: none;
   font-weight: 600;
