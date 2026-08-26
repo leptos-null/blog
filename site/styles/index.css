@@ -2,9 +2,13 @@ main {
   padding-top: 3rem;
 }
 
+section > h2 {
+  margin-bottom: 0.5rem;
+}
+
 .post-list {
   list-style: none;
-  margin: 2rem 0 0;
+  margin: 0.5rem 0 0;
   padding: 0;
 }
 
@@ -12,7 +16,7 @@ main {
   margin: 0 0 1.5rem;
 }
 
-.post-list h2 {
+.post-list h3 {
   display: inline;
   margin: 0;
   font-size: 1.125rem;
