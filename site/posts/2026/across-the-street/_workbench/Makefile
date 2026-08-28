@@ -13,16 +13,10 @@ LDFLAGS := -F$(IOS_SUPPORT)/System/Library/Frameworks \
 PrayerTimes: PrayerTimes.m
 	$(CC) $(CFLAGS) $(LDFLAGS) -framework Foundation -framework UIKit -framework CoreGraphics $< -o $@
 
-NanDate: NanDate.m
-	$(CC) $(CFLAGS) $(LDFLAGS) -framework Foundation $< -o $@
-
-run-original-crash: PrayerTimes
+run: PrayerTimes
 	./PrayerTimes
 
-run-nan-date: NanDate
-	./NanDate
-
 clean:
-	rm -f PrayerTimes NanDate
+	rm -f PrayerTimes
 
-.PHONY: run-original-crash run-nan-date clean
+.PHONY: run clean

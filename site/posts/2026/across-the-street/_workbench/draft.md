@@ -1,10 +1,6 @@
 # Across the street (a debugging story)
 
-This is often the story I recount when asked about a bug that was difficult to track down.
-
-## The story
-
-This story takes place back in 2018, while I was staying in a hotel in California for a few days.
+This story takes place in 2018, while I was staying in a hotel in California for a few days.
 I was working on code that would eventually make its way into [PrayerTimes](<https://github.com/leptos-null/PrayerTimes>).
 
 On the first evening that I was staying at the hotel, I walked across the street to where a few restaurants were.
@@ -48,49 +44,3 @@ On the third day, I go across the street and pay a little bit more attention to 
 I found the issue: the `sqrt` (square root) function in the C math library returns `NaN` when the parameter is negative. The code takes the `sqrt` of the elevation to adjust the observed horizon. The hotel and restaurant were just above sea level and the road between them was below sea level, meaning the elevation was negative. When I simulated a bunch of locations on the second day, I only set the coordinates, effectively using a `0` elevation. Up until that point, while working on the project, I hadn't been near sea level at all, and evidently not below it.
 
 I enjoy this story because the issue came down to a very tangible logic bug and partially because the real-world input was fun (being below sea level).
-
-## Technical takeaways
-
-While I enjoy the story itself, there are also some technical takeaways we can apply to other projects.
-
-The first is probably clear: there was a gap in the unit tests. If unit tests had included elevations that were less than `0`, I would have noticed the `NaN` issue immediately.
-
-The point I want to focus on more is: catching unexpected values early. In this case, the `NaN` value passed through many functions, dozens of arithmetic operations, and even got passed into the `init` of `NSDate` without any indication that the value was unexpected.
-
-Aside: The code has changed since 2018, when this story took place (including being re-written in Swift), but the high level structure still holds. If you'd like to trace the logic yourself, see [where the square root operation occurs](<https://github.com/leptos-null/PrayerTimes/blob/e7b4fe3fd52d990a95c7ac55210c5d268bbb7791/PrayerTimesKit/DailyPrayers.swift#L45>) and [where this particular crash occurred](<https://github.com/leptos-null/PrayerTimes/blob/e7b4fe3fd52d990a95c7ac55210c5d268bbb7791/PrayerTimesUI/SolarPositionsView.swift#L68-L71>) (this linked code is SwiftUI and doesn't crash if `NaN` is passed, but from the perspective of tracing the logic, it's very similar).
-
-You could say that I actually got lucky that `-[UIView setCenter:]` resulted in a crash. Those `NSDate` objects were used for other operations like showing the time to the user. Consider the following code:
-
-```objc
-#import <Foundation/Foundation.h>
-
-int main(void) {
-    NSDate *date = [NSDate dateWithTimeIntervalSinceReferenceDate:NAN];
-
-    NSDateFormatter *formatter = [NSDateFormatter new];
-    formatter.dateStyle = NSDateFormatterFullStyle;
-    formatter.timeStyle = NSDateFormatterFullStyle;
-
-    NSLog(@"date: %@", date);
-    NSLog(@"timeIntervalSinceReferenceDate: %f", date.timeIntervalSinceReferenceDate);
-    NSLog(@"formatted: %@", [formatter stringFromDate:date]);
-
-    return 0;
-}
-```
-
-The output:
-
-```
-date: 
-timeIntervalSinceReferenceDate: nan
-formatted: 
-```
-
-Formatting a date where the underlying time interval is `NAN` produces an empty string.
-
-If this crash hadn't occurred, this bug may have gone unnoticed, and users would just see no dates in the UI.
-
-My suggestion here is to add assertions frequently throughout your code. You (as a developer) place assertions at the point in code where you're assuming some state. For example, if the codebase had included an assertion that the values used to create the dates must be `isfinite`, the scope of the issue would have been much narrower.
-
-In my opinion, this practice helps to encode your assumption into the codebase, as well as validate those assumptions at runtime.
