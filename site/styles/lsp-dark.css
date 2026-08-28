@@ -1,0 +1,77 @@
+.lsp-type-modifier {
+    color: #e1a778;
+}
+
+.lsp-type-comment {
+    color: #7cb454;
+}
+
+.lsp-type-class {
+    color: #a4fae5;
+}
+
+.lsp-type-class.lsp-modifier-defaultLibrary {
+    color: #ddc1fe;
+}
+
+.lsp-type-enumMember {
+    color: #72bead;
+}
+
+.lsp-type-enumMember.lsp-modifier-defaultLibrary {
+    color: #c089fe;
+}
+
+.lsp-type-function,
+.lsp-type-method,
+.lsp-type-property,
+.lsp-type-function.lsp-modifier-classScope {
+    color: #72bead;
+}
+
+.lsp-type-function.lsp-modifier-defaultLibrary,
+.lsp-type-method.lsp-modifier-defaultLibrary,
+.lsp-type-property.lsp-modifier-defaultLibrary,
+.lsp-type-function.lsp-modifier-classScope.lsp-modifier-defaultLibrary {
+    color: #c089fe;
+}
+
+.lsp-type-macro {
+    color: #fc8e3e;
+}
+
+.lsp-type-macro.lsp-modifier-defaultLibrary {
+    color: #fc8e3e;
+}
+
+.lsp-type-type {
+    color: #a4fae5;
+}
+
+.lsp-type-type.lsp-modifier-defaultLibrary {
+    color: #ddc1fe;
+}
+
+.lsp-type-variable.lsp-modifier-globalScope {
+    color: #72bead;
+}
+
+.lsp-type-variable.lsp-modifier-globalScope.lsp-modifier-defaultLibrary {
+    color: #c089fe;
+}
+
+.lsp-type-keyword {
+    color: #fc6ba9;
+}
+
+.lsp-type-number {
+    color: #cfbb55;
+}
+
+.lsp-type-preprocessor {
+    color: #fc8e3e;
+}
+
+.lsp-type-string {
+    color: #fc7367;
+}
