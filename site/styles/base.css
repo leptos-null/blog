@@ -1,10 +1,12 @@
 :root {
   color-scheme: light dark;
+
   --bg: #ffffff;
   --fg: #1a1a1a;
   --fg-muted: #55575c;
   --border: #dcdde0;
   --link: #0060df;
+  --code-bg: #f8f8f8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +16,7 @@
     --fg-muted: #a6a9b0;
     --border: #34363c;
     --link: #6cb4ff;
+    --code-bg: #262730;
   }
 }
 
@@ -86,6 +89,38 @@ a:focus-visible {
 
 math {
   font-size: 1em;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background-color: var(--code-bg);
+  padding: 0.15em 0.2em;
+  border-radius: 0.25em;
+}
+
+pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-radius: 0.5em;
+}
+
+pre code {
+  display: block;
+  padding: 0.65rem 1rem;
+  font-size: 0.85em;
+}
+
+aside {
+  margin: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.1rem 0.75em 0.75em 0.75em;
+  font-size: 0.95rem;
+}
+
+aside p:last-child {
+  margin-bottom: 0;
 }
 
 figure {
