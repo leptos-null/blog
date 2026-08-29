@@ -99,9 +99,11 @@ code {
   border-radius: 0.25em;
 }
 
-pre {
+pre.codeblock {
   margin: 1.5rem 0;
   overflow-x: auto;
+  background-color: var(--code-bg);
+  border-radius: 0.5em;
 }
 
 pre code {
@@ -110,7 +112,16 @@ pre code {
   min-width: 100%;
   padding: 0.65rem 1rem;
   font-size: 0.85em;
-  border-radius: 0.5em;
+  /* put the background-color in `pre` so that when scrolling on the block
+   * beyond the normal bounds, the background-color is still present.
+   * This felt more natural, in my testing.
+   */
+  background-color: transparent;
+  /* In my testing, on iOS WebKit (does not happen on macOS WebKit), setting `width: max-content`
+   * causes the text size to increase. These properties avoid that increase.
+   */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 aside {
