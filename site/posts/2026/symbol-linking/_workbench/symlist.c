@@ -31,7 +31,7 @@
 // comes from. Input is assumed to be well-formed: offsets within a slice
 // are largely trusted, so this is not suitable for untrusted files.
 //
-// Build: clang -Wall -Wextra -o symlist symlist.c
+// Build: clang -Wall -Wextra -Wshadow -Wconversion symlist.c -o symlist
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -146,10 +146,10 @@ static bool parse_slice(const uint8_t *slice, uint64_t slice_size) {
         return false;
     }
 
-    const bool is_two_level = (header->flags & MH_TWOLEVEL) != 0;
+    bool const is_two_level = (header->flags & MH_TWOLEVEL) != 0;
     // MH_TWOLEVEL is never set on object files, but an object file isn't
     // flat-namespace either: its undefined symbols have no library yet.
-    const bool is_object_file = (header->filetype == MH_OBJECT);
+    bool const is_object_file = (header->filetype == MH_OBJECT);
 
     dylib_list_t dylibs = {0};
 
@@ -209,8 +209,8 @@ static bool parse_slice(const uint8_t *slice, uint64_t slice_size) {
 
         uint8_t const type = entry->n_type & N_TYPE;
         // N_UNDF with a non-zero n_value is a common symbol: a definition, not a reference.
-        const bool is_undefined = (type == N_UNDF && entry->n_value == 0) || (type == N_PBUD);
-        const bool is_indirect = (type == N_INDR);
+        bool const is_undefined = (type == N_UNDF && entry->n_value == 0) || (type == N_PBUD);
+        bool const is_indirect = (type == N_INDR);
 
         char flags[128] = {0};
         append_flag(flags, sizeof(flags), (entry->n_type & N_EXT) ? "extern" : "local");
