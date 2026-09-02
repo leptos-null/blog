@@ -107,7 +107,7 @@ In short, the linker needs to be told (via command line options):
 - the names of the libraries to link against
 - the folders where libraries may be located
 
-As we know from the [Terminology section](#terminology), a compiler driver usually calls the linker. Here's how some compiler drivers work:
+As we know from the [Terminology](#terminology) section, a compiler driver usually calls the linker. Here's how some compiler drivers work:
 
 - Usually, a C compiler must be told by the developer (via command line options) which libraries they would like to link against. The example we saw above with `clang` worked because the compiler driver automatically links against the C standard library, which is where `puts` is.
 - Clang added a feature called [modules](<https://clang.llvm.org/docs/Modules.html>) which you can opt into with the `-fmodules` command line option. These modules aim to improve multiple patterns when using C. One of these improvements is to automatically link the required library when your code includes a header defined to be in the module (I'll demonstrate this below).

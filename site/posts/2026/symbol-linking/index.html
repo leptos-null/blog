@@ -57,7 +57,7 @@
 
       <p>The implementation (meaning the actual code that will execute) for <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> must exist somewhere. On macOS, that location is <code>/usr/lib/libSystem.B.dylib</code> (actually, it's <code>/usr/lib/system/libsystem_c.dylib</code> because <code>libSystem.B.dylib</code> is what's called an &ldquo;umbrella&rdquo; that re-exports symbols from other libraries, but that's outside the scope of this post).</p>
 
-      <h3>Static linking</h3>
+      <h3 id="static-linking">Static linking</h3>
 
       <p>Static linking is a type of linking where the linker copies the implementation of the function that your code needs into your binary. In our case, that would mean copying the implementation of <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> into our binary. Static linking requires the implementation to be in a static archive (<code>.a</code>) file.</p>
 
@@ -132,7 +132,7 @@
 
       <p>The remainder of this post focuses on dynamic linking.</p>
 
-      <h2>Platform specifics</h2>
+      <h2 id="platform-specifics">Platform specifics</h2>
 
       <p>While the concepts of linking are similar across platforms, this post gets into details that are specific to Apple platforms.</p>
 
@@ -221,7 +221,7 @@ _puts: /usr/lib/libSystem.B.dylib [extern]</code></pre>
         <li>the folders where libraries may be located</li>
       </ul>
 
-      <p>As we know from the <a href="#terminology">Terminology section</a>, a compiler driver usually calls the linker. Here's how some compiler drivers work:</p>
+      <p>As we know from the <a href="#terminology">Terminology</a> section, a compiler driver usually calls the linker. Here's how some compiler drivers work:</p>
 
       <ul>
         <li>Usually, a C compiler must be told by the developer (via command line options) which libraries they would like to link against. The example we saw above with <code>clang</code> worked because the compiler driver automatically links against the C standard library, which is where <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> is.</li>
@@ -296,7 +296,7 @@ _zlibVersion: /usr/lib/libz.1.dylib [extern]</code></pre>
 
       <p>You can produce your own <code>.tbd</code> files using the <code>tapi</code> tool that's included in the Xcode toolchain.</p>
 
-      <h2>Resolving the symbol at run-time</h2>
+      <h2 id="resolving-the-symbol-at-run-time">Resolving the symbol at run-time</h2>
 
       <p>On Apple platforms, when a program starts, the first code that runs is in a binary called <code>dyld</code> (<q>the dynamic linker</q>). <code>dyld</code> performs a lot of start-up work, but the part that's important to us is that it &ldquo;links&rdquo; the symbols we've been talking about.</p>
 
