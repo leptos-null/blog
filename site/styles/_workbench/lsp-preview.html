@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LSP style preview</title>
+  <link rel="stylesheet" href="../base.css">
+  <link rel="stylesheet" href="../lsp-light.css">
+  <link rel="stylesheet" href="../lsp-dark.css" media="(prefers-color-scheme: dark)">
+</head>
+
+<body>
+  <main>
+    <h1>LSP type / modifier preview</h1>
+
+    <h2>Types</h2>
+    <ul>
+      <li><code><span class="lsp-type-modifier">lsp-type-modifier</span></code></li>
+      <li><code><span class="lsp-type-comment">lsp-type-comment</span></code></li>
+      <li><code><span class="lsp-type-class">lsp-type-class</span></code></li>
+      <li><code><span class="lsp-type-class lsp-modifier-defaultLibrary">lsp-type-class lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-enumMember">lsp-type-enumMember</span></code></li>
+      <li><code><span class="lsp-type-enumMember lsp-modifier-defaultLibrary">lsp-type-enumMember lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-function">lsp-type-function</span></code></li>
+      <li><code><span class="lsp-type-function lsp-modifier-defaultLibrary">lsp-type-function lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-method">lsp-type-method</span></code></li>
+      <li><code><span class="lsp-type-method lsp-modifier-defaultLibrary">lsp-type-method lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-property">lsp-type-property</span></code></li>
+      <li><code><span class="lsp-type-property lsp-modifier-defaultLibrary">lsp-type-property lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-function lsp-modifier-classScope">lsp-type-function lsp-modifier-classScope</span></code></li>
+      <li><code><span class="lsp-type-function lsp-modifier-classScope lsp-modifier-defaultLibrary">lsp-type-function lsp-modifier-classScope lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-macro">lsp-type-macro</span></code></li>
+      <li><code><span class="lsp-type-macro lsp-modifier-defaultLibrary">lsp-type-macro lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-type">lsp-type-type</span></code></li>
+      <li><code><span class="lsp-type-type lsp-modifier-defaultLibrary">lsp-type-type lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-variable lsp-modifier-globalScope">lsp-type-variable lsp-modifier-globalScope</span></code></li>
+      <li><code><span class="lsp-type-variable lsp-modifier-globalScope lsp-modifier-defaultLibrary">lsp-type-variable lsp-modifier-globalScope lsp-modifier-defaultLibrary</span></code></li>
+      <li><code><span class="lsp-type-keyword">lsp-type-keyword</span></code></li>
+      <li><code><span class="lsp-type-number">lsp-type-number</span></code></li>
+      <li><code><span class="lsp-type-preprocessor">lsp-type-preprocessor</span></code></li>
+      <li><code><span class="lsp-type-string">lsp-type-string</span></code></li>
+      <li><code><span class="lsp-type-operator">lsp-type-operator (no rule defined)</span></code></li>
+      <li><code>plain code, no lsp class (checks --code-bg)</code></li>
+    </ul>
+
+    <h2>Backtrace sample</h2>
+    <pre><code><span class="lsp-type-comment">0</span>   CoreFoundation           <span class="lsp-type-function">__exceptionPreprocess</span> <span class="lsp-type-operator">+</span> <span class="lsp-type-number">176</span>
+<span class="lsp-type-comment">7</span>   PrayerTimes              <span class="lsp-type-function">-[PTViewController _update]</span> <span class="lsp-type-operator">+</span> <span class="lsp-type-number">76</span></code></pre>
+
+    <h2>Aside sample</h2>
+    <aside>
+      <p>This is an aside, to check its box styling against the rest of the page.</p>
+    </aside>
+  </main>
+</body>
+
+</html>

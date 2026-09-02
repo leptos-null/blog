@@ -1,0 +1,26 @@
+.manpage {
+  margin: 1.5rem 0;
+  padding: 0.65rem 1rem;
+  background-color: var(--code-bg);
+  border-radius: 0.5em;
+  font-family: var(--code-font);
+  font-size: 0.85em;
+}
+
+.manpage dl {
+  margin: 0;
+}
+
+.manpage dt {
+  font-weight: 700;
+  margin: 1em 0 0.35em;
+}
+
+.manpage dt:first-child {
+  margin-top: 0;
+}
+
+.manpage dd {
+  margin: 0;
+  padding-left: 2ch;
+}

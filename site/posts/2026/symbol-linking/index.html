@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How does calling a function you never wrote actually work? A tour of linking on Apple platforms, from the linker to dyld resolving symbols at runtime.">
+  <meta property="og:site_name" content="Leptos Blog">
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2026-09-02">
+  <meta property="article:author" content="Leptos">
+  <title>The code we don't write: linking</title>
+  <link rel="stylesheet" href="/blog/styles/base.css">
+  <link rel="stylesheet" href="/blog/styles/lsp-light.css">
+  <link rel="stylesheet" href="/blog/styles/lsp-dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="/blog/styles/ansi.css">
+  <link rel="stylesheet" href="/blog/styles/manpage.css">
+  <link rel="stylesheet" href="diagram.css">
+</head>
+
+<body>
+  <header>
+    <nav><a href="/blog">Leptos Blog</a></nav>
+  </header>
+
+  <main>
+    <article>
+      <h1>The code we don't write: linking</h1>
+
+      <time class="post-date" datetime="2026-09-02">September 2, 2026</time>
+
+      <p>When you write code in a compiled programming language, how do the functions that we didn't implement run? For example, in a simple C program:</p>
+
+      <pre class="codeblock"><code><span class="lsp-type-macro">#</span><span class="lsp-type-macro">include</span> <span class="lsp-type-macro">&lt;</span><span class="lsp-type-macro">stdio</span><span class="lsp-type-macro">.</span><span class="lsp-type-macro">h</span><span class="lsp-type-macro">&gt;</span>
+
+<span class="lsp-type-keyword">int</span> <span class="lsp-type-function lsp-modifier-definition lsp-modifier-declaration lsp-modifier-globalScope">main</span>(<span class="lsp-type-keyword">void</span>) {
+    <span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span>(<span class="lsp-type-string">&quot;Hello, world&quot;</span>);
+}</code></pre>
+
+      <p>How does the <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> function run?</p>
+
+      <h2 id="terminology">Terminology</h2>
+
+      <dl>
+        <dt>Binary</dt>
+        <dd>Throughout computer science, binary is frequently used as a generic term. In this post, I use &ldquo;binary&rdquo; to refer to code that can run, either as an executable program or in a dynamic library. (This is sometimes called a &ldquo;final linked image&rdquo;.)</dd>
+
+        <dt>Linker</dt>
+        <dd>The program responsible for &ldquo;linking&rdquo; code and producing a binary. The name of this program is generally <code>ld</code>. A compiler driver (e.g. <code>clang</code>, <code>swift</code>, etc.) usually calls the linker for you.</dd>
+
+        <dt>Symbol</dt>
+        <dd>On a technical level, a symbol is a named address within a binary. In C, this is either a function or a global variable. Other languages may choose to annotate other information with symbols; for example, Swift provides symbols for type metadata.</dd>
+      </dl>
+
+      <h2>Two linking types</h2>
+
+      <p>The implementation (meaning the actual code that will execute) for <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> must exist somewhere. On macOS, that location is <code>/usr/lib/libSystem.B.dylib</code> (actually, it's <code>/usr/lib/system/libsystem_c.dylib</code> because <code>libSystem.B.dylib</code> is what's called an &ldquo;umbrella&rdquo; that re-exports symbols from other libraries, but that's outside the scope of this post).</p>
+
+      <h3>Static linking</h3>
+
+      <p>Static linking is a type of linking where the linker copies the implementation of the function that your code needs into your binary. In our case, that would mean copying the implementation of <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> into our binary. Static linking requires the implementation to be in a static archive (<code>.a</code>) file.</p>
+
+      <p>Since static linking copies the implementations your code needs into your binary, you don't need a separate file with those implementations on the user's machine. <code>/usr/lib/libSystem.B.dylib</code> is already on the user's machine (since it ships with the operating system), so this wouldn't be helpful. If you were using a third-party library, you may choose to statically link against that library.</p>
+
+      <h3 id="dynamic-linking">Dynamic linking</h3>
+
+      <p>Dynamic linking is a type of linking where the linker includes information in your binary about the functions that your binary needs so they can be &ldquo;dynamically&rdquo; found when your binary runs. In our case, that simply means including the information that there's a symbol called <code>_puts</code> in the file <code>/usr/lib/libSystem.B.dylib</code>.</p>
+
+      <p>Dynamic linking requires that the libraries you link against at link-time are also present on the user's machine when your binary runs. This is a common use for package managers such as <code>apt</code> or <code>brew</code>: your program or library can depend on libraries provided by other packages. You communicate the dependencies your package has and the package manager ensures those dependencies are present on the user's machine so your binary can run.</p>
+
+      <h3>Comparison</h3>
+
+      <div class="diagram-row">
+        <figure class="linking-diagram">
+          <div class="linking-diagram-body">
+            <p class="chart-title">Static linking</p>
+            <svg viewBox="0 0 300 440" role="img" aria-labelledby="static-linking-title">
+              <title id="static-linking-title">Diagram of static linking: the hello binary contains both the _main and _puts symbols.</title>
+              <defs>
+                <marker id="arrow-static" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="var(--fg-muted)" />
+                </marker>
+              </defs>
+
+              <rect x="10" y="10" width="280" height="420" rx="8" fill="none" stroke="var(--fg)" stroke-width="2" />
+              <text x="28" y="42" fill="var(--fg)" font-size="18" font-weight="600">hello</text>
+
+              <rect x="40" y="74" width="220" height="140" rx="6" fill="none" stroke="var(--caller-color)" stroke-width="2" />
+              <text x="56" y="106" fill="var(--caller-color)" font-size="18">_main</text>
+
+              <rect x="40" y="260" width="220" height="140" rx="6" fill="none" stroke="var(--callee-color)" stroke-width="2" />
+              <text x="56" y="292" fill="var(--callee-color)" font-size="18">_puts</text>
+
+              <path d="M 238 192 Q 300 237 235 285" fill="none" stroke="var(--fg-muted)" stroke-width="2" marker-end="url(#arrow-static)" />
+            </svg>
+          </div>
+          <figcaption>Both <code>_main</code> and <code>_puts</code> live inside <code>hello</code>; the call never leaves the binary.</figcaption>
+        </figure>
+
+        <figure class="linking-diagram">
+          <div class="linking-diagram-body">
+            <p class="chart-title">Dynamic linking</p>
+            <svg viewBox="0 0 300 528" role="img" aria-labelledby="dynamic-linking-title">
+              <title id="dynamic-linking-title">Diagram of dynamic linking: the hello binary contains _main, and libSystem.B.dylib contains _puts.</title>
+              <defs>
+                <marker id="arrow-dynamic" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="var(--fg-muted)" />
+                </marker>
+              </defs>
+
+              <rect x="10" y="10" width="280" height="234" rx="8" fill="none" stroke="var(--fg)" stroke-width="2" />
+              <text x="28" y="42" fill="var(--fg)" font-size="18" font-weight="600">hello</text>
+
+              <rect x="40" y="74" width="220" height="140" rx="6" fill="none" stroke="var(--caller-color)" stroke-width="2" />
+              <text x="56" y="106" fill="var(--caller-color)" font-size="18">_main</text>
+
+              <rect x="10" y="284" width="280" height="234" rx="8" fill="none" stroke="var(--fg)" stroke-width="2" />
+              <text x="28" y="316" fill="var(--fg)" font-size="18" font-weight="600">libSystem.B.dylib</text>
+
+              <rect x="40" y="348" width="220" height="140" rx="6" fill="none" stroke="var(--callee-color)" stroke-width="2" />
+              <text x="56" y="380" fill="var(--callee-color)" font-size="18">_puts</text>
+
+              <path d="M 238 192 Q 300 274 235 373" fill="none" stroke="var(--fg-muted)" stroke-width="2" marker-end="url(#arrow-dynamic)" />
+            </svg>
+          </div>
+          <figcaption><code>_main</code> lives in <code>hello</code>, but <code>_puts</code> lives in <code>libSystem.B.dylib</code>; the call crosses into another binary.</figcaption>
+        </figure>
+      </div>
+
+      <p>When in doubt, you should use dynamic linking. Dynamic linking allows multiple programs that use the same library to share that implementation on the filesystem (in static linking, the same implementation would be duplicated across each program). Dynamic linking also allows a library maintainer to deploy bug fixes without requiring each program maintainer to rebuild and deploy their program.</p>
+
+      <p>The remainder of this post focuses on dynamic linking.</p>
+
+      <h2>Platform specifics</h2>
+
+      <p>While the concepts of linking are similar across platforms, this post gets into details that are specific to Apple platforms.</p>
+
+      <p>Differences to keep in mind between Apple platforms and Linux:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">component</th>
+            <th scope="col">Apple</th>
+            <th scope="col">Linux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">sysroot</th>
+            <td><code>.sdk</code></td>
+            <td>file system</td>
+          </tr>
+          <tr>
+            <th scope="row">link-time reference</th>
+            <td><code>.tbd</code></td>
+            <td>binaries</td>
+          </tr>
+          <tr>
+            <th scope="row">dynamic library extension</th>
+            <td><code>.dylib</code></td>
+            <td><code>.so</code> (&ldquo;shared object&rdquo;)</td>
+          </tr>
+          <tr>
+            <th scope="row">symbol convention</th>
+            <td>prepend <code>_</code> (e.g. <code>_main</code>)</td>
+            <td>none (e.g. <code>main</code>)</td>
+          </tr>
+          <tr>
+            <th scope="row">object format</th>
+            <td>Mach-O</td>
+            <td>ELF</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>If you're not familiar with any of those terms, don't worry about them, just keep in mind that not everything in this post is necessarily transferable to Linux or other platforms.</p>
+
+      <h2>Inspecting the binary</h2>
+
+      <p>For this blog post, I asked Claude to write a program to list information about the symbols in a given binary. I'll be referring to this program as <code>./symlist</code>. You can view the source code for this program on <a href="https://github.com/leptos-null/blog/blob/main/site/posts/2026/symbol-linking/_workbench/symlist.c">GitHub</a> or <a href="symlist.html">here on the blog</a>.</p>
+
+      <p><code>nm</code> is a similar tool that ships with the Xcode toolchain, if you'd like to follow along without building <code>./symlist</code>.</p>
+
+      <p>I've put the code snippet from the beginning of this post into <code>hello.c</code>:</p>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> clang hello.c -o hello
+<span class="shell-prompt">$</span> nm -m hello
+<span class="lsp-type-number">0000000100000000</span> (__TEXT,__text) [referenced dynamically] external __mh_execute_header
+<span class="lsp-type-number">0000000100000460</span> (__TEXT,__text) external _main
+                 (undefined) external _puts (from libSystem)
+<span class="shell-prompt">$</span> ./symlist hello
+_main: <span class="lsp-type-number">0x0000000100000460</span> [extern]
+_puts: /usr/lib/libSystem.B.dylib [extern]</code></pre>
+
+      <p>The main reason I wanted to use <code>./symlist</code> for this post instead of <code>nm</code> is to show that the full path information is included in the <code>hello</code> binary (<code>nm</code> most likely trims the path for readability).</p>
+
+      <p>The takeaway from this section is that we're able to view the information that the linker placed in the binary about the symbol that I previously mentioned in the <a href="#dynamic-linking">Dynamic linking</a> section.</p>
+
+      <h2 id="finding-the-symbol-at-link-time">Finding the symbol at link-time</h2>
+
+      <p>We now know (from the previous section) that the binary contains the full path of the library for each symbol it dynamically links against. How does the linker know that information to be able to put it there?</p>
+
+      <p>If we check <a href="https://man.freebsd.org/cgi/man.cgi?query=ld&sektion=1&manpath=macOS+26.6.1"><code>man ld</code></a>:</p>
+
+      <blockquote class="manpage" cite="https://man.freebsd.org/cgi/man.cgi?query=ld&sektion=1&manpath=macOS+26.6.1">
+        <dl>
+          <dt>Search paths</dt>
+          <dd><code>ld</code> maintains a list of directories to search for a library or framework to use. The default library search path is <code>/usr/lib</code> then <code>/usr/local/lib</code>. The <code>-L</code> option will add a new library search path. [...] The <code>-syslibroot</code> option will prepend a prefix to all search paths.</dd>
+
+          <dt><code>-l</code><var>x</var></dt>
+          <dd>This option tells the linker to search for <code>lib<var>x</var>.dylib</code> or <code>lib<var>x</var>.a</code> in the library search path. If string <var>x</var> is of the form <code>y.o</code>, then that file is searched for in the same places, but without prepending <code>lib</code> or appending <code>.a</code> or <code>.dylib</code> to the filename.</dd>
+        </dl>
+      </blockquote>
+
+      <p>In short, the linker needs to be told (via command line options):</p>
+
+      <ul>
+        <li>the names of the libraries to link against</li>
+        <li>the folders where libraries may be located</li>
+      </ul>
+
+      <p>As we know from the <a href="#terminology">Terminology section</a>, a compiler driver usually calls the linker. Here's how some compiler drivers work:</p>
+
+      <ul>
+        <li>Usually, a C compiler must be told by the developer (via command line options) which libraries they would like to link against. The example we saw above with <code>clang</code> worked because the compiler driver automatically links against the C standard library, which is where <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> is.</li>
+        <li>Clang added a feature called <a href="https://clang.llvm.org/docs/Modules.html">modules</a> which you can opt into with the <code>-fmodules</code> command line option. These modules aim to improve multiple patterns when using C. One of these improvements is to automatically link the required library when your code includes a header defined to be in the module (I'll demonstrate this below).</li>
+        <li>Swift uses a module system similar to Clang.</li>
+      </ul>
+
+      <p>To demonstrate the Clang behavior, we'll use the following C program, in a file called <code>zlib_version.c</code>:</p>
+
+      <pre class="codeblock"><code><span class="lsp-type-macro">#</span><span class="lsp-type-macro">include</span> <span class="lsp-type-macro">&lt;</span><span class="lsp-type-macro">stdio</span><span class="lsp-type-macro">.</span><span class="lsp-type-macro">h</span><span class="lsp-type-macro">&gt;</span>
+<span class="lsp-type-macro">#</span><span class="lsp-type-macro">include</span> <span class="lsp-type-macro">&lt;</span><span class="lsp-type-macro">zlib</span><span class="lsp-type-macro">.</span><span class="lsp-type-macro">h</span><span class="lsp-type-macro">&gt;</span>
+
+<span class="lsp-type-keyword">int</span> <span class="lsp-type-function lsp-modifier-globalScope lsp-modifier-declaration lsp-modifier-definition">main</span>(<span class="lsp-type-keyword">void</span>) {
+    <span class="lsp-type-function lsp-modifier-globalScope lsp-modifier-defaultLibrary">printf</span>(<span class="lsp-type-string">&quot;zlibVersion: %s\n&quot;</span>, <span class="lsp-type-function lsp-modifier-globalScope lsp-modifier-defaultLibrary">zlibVersion</span>());
+}</code></pre>
+
+      <p>When I build this:</p>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> clang zlib_version.c -o zlib_version
+Undefined symbols for architecture arm64:
+  <span class="lsp-type-string">"_zlibVersion"</span>, referenced from:
+      _main in zlib_version.o
+ld: symbol(s) not found for architecture arm64
+clang: <span class="ansi-bold ansi-red">error: </span><span class="ansi-bold">linker command failed with exit code 1 (use -v to see invocation)</span></code></pre>
+
+      <p>The linker didn't find the symbol. We can infer from the information above that the library wasn't passed to <code>ld</code> via the <code>-l</code> option. We can ask <code>clang</code> to pass that information explicitly:</p>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> clang -lz zlib_version.c -o zlib_version
+<span class="shell-prompt">$</span> ./zlib_version
+zlibVersion: 1.2.12</code></pre>
+
+      <p>Now it works. Let's try with <code>-fmodules</code> as well:</p>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> clang -fmodules zlib_version.c -o zlib_version
+<span class="shell-prompt">$</span> ./zlib_version
+zlibVersion: 1.2.12</code></pre>
+
+      <p>That also works. This post isn't meant to be too much about modules- if you want, you can find the module map file for the relevant module here with <code>grep -rE '\&lt;header\&gt;\s+"zlib\.h"' "$(xcrun --show-sdk-path)/usr/include" --include='*.modulemap'</code>.</p>
+
+      <p>We can inspect that binary again:</p>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> nm -m zlib_version
+<span class="lsp-type-number">0000000100000000</span> (__TEXT,__text) [referenced dynamically] external __mh_execute_header
+<span class="lsp-type-number">0000000100000498</span> (__TEXT,__text) external _main
+                 (undefined) external _printf (from libSystem)
+                 (undefined) external _zlibVersion (from libz)
+<span class="shell-prompt">$</span> ./symlist zlib_version
+_main: <span class="lsp-type-number">0x0000000100000498</span> [extern]
+_printf: /usr/lib/libSystem.B.dylib [extern]
+_zlibVersion: /usr/lib/libz.1.dylib [extern]</code></pre>
+
+      <h3>Text Based Dynamic Library Stub</h3>
+
+      <p>To check that <code>/usr/lib/libz.1.dylib</code> contains a symbol named <code>_zlibVersion</code>, the linker would have to open <code>/usr/lib/libz.1.dylib</code> and parse the symbol table. <code>/usr/lib/libz.1.dylib</code> has a lot more information than just the symbol table (on macOS 26.5.2, just the arm64e slice is about 120 kB, which I determined using <code>target modules dump sections /usr/lib/libz.1.dylib</code> in LLDB).</p>
+
+      <p>Instead of distributing the entire <code>.dylib</code> (dynamic library), Apple uses <code>.tbd</code> (text based dylib) files for the linker to use. Here's a look at <code>/usr/lib/libz.tbd</code> (within the SDK):</p>
+
+      <pre class="codeblock"><code>--- <span class="lsp-type-type">!tapi-tbd</span>
+<span class="lsp-type-property">tbd-version</span>:     <span class="lsp-type-number">4</span>
+<span class="lsp-type-property">targets</span>:         [ <span class="lsp-type-string">x86_64-macos</span>, <span class="lsp-type-string">x86_64-maccatalyst</span>, <span class="lsp-type-string">arm64e-macos</span>, <span class="lsp-type-string">arm64e-maccatalyst</span> ]
+<span class="lsp-type-property">install-name</span>:    <span class="lsp-type-string">'/usr/lib/libz.1.dylib'</span>
+<span class="lsp-type-property">current-version</span>: <span class="lsp-type-number">1.2.12</span>
+<span class="lsp-type-property">exports</span>:
+  - <span class="lsp-type-property">targets</span>:         [ <span class="lsp-type-string">x86_64-macos</span>, <span class="lsp-type-string">x86_64-maccatalyst</span>, <span class="lsp-type-string">arm64e-macos</span>, <span class="lsp-type-string">arm64e-maccatalyst</span> ]
+    <span class="lsp-type-property">symbols</span>:         [ <span class="lsp-type-string">_adler32</span>, <span class="lsp-type-string">_adler32_combine</span>, <span class="lsp-type-string">_adler32_z</span>, <span class="lsp-type-string">_compress</span>, <span class="lsp-type-string">_compress2</span>,
+                       <span class="lsp-type-string">_zlibVersion</span> ]
+...</code></pre>
+
+      <p>I've truncated this snippet for this post, but the full file is only 1.8 kB (macOS 26.5 SDK). Not only does a <code>.tbd</code> not contain any of the actual code that a <code>.dylib</code> would, but as you can see in this snippet, symbols that appear in multiple architecture slices can be combined into a single listing (in the vast majority of cases, the list of symbols in each slice of a library are the same).</p>
+
+      <p><code>ld</code> still supports using <code>.dylib</code> files directly if it's given one (which is common when building your own project if you split your code into dynamic libraries).</p>
+
+      <p>You can produce your own <code>.tbd</code> files using the <code>tapi</code> tool that's included in the Xcode toolchain.</p>
+
+      <h2>Resolving the symbol at run-time</h2>
+
+      <p>On Apple platforms, when a program starts, the first code that runs is in a binary called <code>dyld</code> (<q>the dynamic linker</q>). <code>dyld</code> performs a lot of start-up work, but the part that's important to us is that it &ldquo;links&rdquo; the symbols we've been talking about.</p>
+
+      <p>Here's approximately what that would look like for the <code>hello</code> program:</p>
+
+      <ol>
+        <li><code>dyld</code> sees that the program requires a symbol called <code>_puts</code> which should be in <code>/usr/lib/libSystem.B.dylib</code></li>
+        <li><code>dyld</code> loads <code>/usr/lib/libSystem.B.dylib</code> into memory</li>
+        <li><code>dyld</code> finds the address of <code>_puts</code> in memory</li>
+        <li><code>dyld</code> places this address into a pointer that <code>hello</code> uses when calling <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code></li>
+      </ol>
+
+      <h2>Poking holes</h2>
+
+      <p>What if we produce a binary that references a file that doesn't exist at run-time? Or a symbol that doesn't exist within a file that does?</p>
+
+      <p>We'll begin by creating a copy of the SDK: <code>ditto "$(xcrun --show-sdk-path)" MacOSX.sdk</code> (this takes a few seconds to run &mdash; the SDK is a lot of files).</p>
+
+      <p>The SDK I'm using for this is <code>macosx26.5</code>. Most likely you can follow along with any similar SDK.</p>
+
+      <p>Let's revisit the <a href="#finding-the-symbol-at-link-time">Finding the symbol at link-time</a> section: one of the commands we used to build <code>zlib_version</code> was <code>clang -lz zlib_version.c -o zlib_version</code>. There's no <code>-L</code>, so the library search path is just the default: <code>/usr/lib</code> then <code>/usr/local/lib</code>. Lastly, remember that <code>-l</code><var>x</var> <q>tells the linker to search for <code>lib<var>x</var>.dylib</code> or <code>lib<var>x</var>.a</code> in the library search path</q>. That documentation leaves out <code>.tbd</code>, but that's included too.</p>
+
+      <p>If we pretend like we're the linker for a moment, we should first check <code>/usr/lib/libz.{dylib,tbd,a}</code> (also remember that the sysroot is prepended to these paths): we've got a match at <code>MacOSX.sdk/usr/lib/libz.tbd</code>. We can check that the symbol we're searching for is present and we're done.</p>
+
+      <p>Now let's mess with this file a little bit.</p>
+
+      <p>Let's start by switching out the path:</p>
+
+      <pre class="codeblock"><code>@@ -1,8 +1,8 @@
+ --- !tapi-tbd
+ tbd-version:     4
+ targets:         [ x86_64-macos, x86_64-maccatalyst, arm64e-macos, arm64e-maccatalyst ]
+<del>-install-name:    '/usr/lib/libz<mark>.1</mark>.dylib'</del>
+<ins>+install-name:    '/usr/lib/libz<mark>ebra</mark>.dylib'</ins>
+ current-version: 1.2.12
+ exports:
+   - targets:         [ x86_64-macos, x86_64-maccatalyst, arm64e-macos, arm64e-maccatalyst ]
+     symbols:         [ _adler32, _adler32_combine, _adler32_z, _compress, _compress2, </code></pre>
+
+      <p>(If you wanted to do this with a <code>.dylib</code> instead, this is just as possible using <code>install_name_tool</code> which is included with the Xcode toolchain.)</p>
+
+      <p>Compile the same <code>zlib_version.c</code> file from earlier, but now against our edited SDK:</p>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> clang -isysroot MacOSX.sdk -lz zlib_version.c -o zlib_version
+<span class="shell-prompt">$</span> ./zlib_version
+dyld[88918]: Library not loaded: /usr/lib/libzebra.dylib
+  Referenced from: &lt;E7847535-85C4-3B14-8DDF-4532B4F82720&gt; ./zlib_version
+  Reason: tried: <span class="lsp-type-string">'/usr/lib/libzebra.dylib'</span> (no such file), <span class="lsp-type-string">'/System/Volumes/Preboot/Cryptexes/OS/usr/lib/libzebra.dylib'</span> (no such file), <span class="lsp-type-string">'/usr/lib/libzebra.dylib'</span> (no such file, not in dyld cache)
+[1]    88918 abort      ./zlib_version</code></pre>
+
+      <p>The process crashed immediately, with a helpful error message. Apple publishes the source code for <code>dyld</code>, so we can even see the source of this message: <a href="https://github.com/apple-oss-distributions/dyld/blob/fd8d0c4d52320ebf64db34f3cb280310d905c5ae/dyld/JustInTimeLoader.cpp#L525">https://github.com/<wbr />apple-oss-distributions/<wbr />dyld/<wbr />blob/<wbr />fd8d0c4/<wbr />dyld/<wbr />JustInTimeLoader.cpp#L525</a>.</p>
+
+      <p>Let's put the path back and edit one of the symbol names:</p>
+
+      <pre class="codeblock"><code>@@ -3,9 +3,9 @@
+ targets:         [ x86_64-macos, x86_64-maccatalyst, arm64e-macos, arm64e-maccatalyst ]
+ install-name:    '/usr/lib/libz.1.dylib'
+ current-version: 1.2.12
+ exports:
+   - targets:         [ x86_64-macos, x86_64-maccatalyst, arm64e-macos, arm64e-maccatalyst ]
+<del>-    symbols:         [ _adler32, _adler32_combine, _adler32_z, _compress, _compress2,</del>
+<ins>+    symbols:         [ _adler32, _adler32_combine, _adler32_z, _<mark>zebra_</mark>compress, _compress2,</ins>
+                        _compressBound, _crc32, _crc32_combine, _crc32_combine_gen, </code></pre>
+
+      <p>(If we had to use a <code>.dylib</code> here, we could trick the linker by compiling our own <code>.dylib</code> where the source code is just empty functions for each desired symbol.)</p>
+
+      <p>We'll need a new source code file to test this. I'll create <code>fake_zebra.c</code>:</p>
+
+      <pre class="codeblock"><code><span class="lsp-type-keyword">extern</span> <span class="lsp-type-keyword">int</span> <span class="lsp-type-function lsp-modifier-globalScope lsp-modifier-declaration">zebra_compress</span>(<span class="lsp-type-keyword">void</span>);
+
+<span class="lsp-type-keyword">int</span> <span class="lsp-type-function lsp-modifier-definition lsp-modifier-declaration lsp-modifier-globalScope">main</span>(<span class="lsp-type-keyword">void</span>) {
+    <span class="lsp-type-function lsp-modifier-globalScope">zebra_compress</span>();
+    <span class="lsp-type-keyword">return</span> <span class="lsp-type-number">0</span>;
+}</code></pre>
+
+      <pre class="codeblock"><code><span class="shell-prompt">$</span> clang -isysroot MacOSX.sdk -lz fake_zebra.c -o fake_zebra
+<span class="shell-prompt">$</span> ./fake_zebra
+dyld[89724]: Symbol not found: _zebra_compress
+  Referenced from: &lt;1620228C-A5B2-3A58-9BF6-C87F3549808C&gt; ./fake_zebra
+  Expected in:     &lt;863BB312-F115-32B0-889F-D3B42857A7A6&gt; /usr/lib/libz.1.dylib
+[1]    89724 abort      ./fake_zebra</code></pre>
+
+      <p>A fairly similar and helpful message from <code>dyld</code>.</p>
+
+      <p>In both of these cases, we made deliberate changes to the <code>.tbd</code> that we reasonably expected would cause problems. You may see these errors with less deliberate changes though. For example, if you make changes to the source code of a library you maintain, you may update the headers and <code>.tbd</code>, but forget to install the library itself. If you had the old version of your library still installed and you ran a program that linked against the new <code>.tbd</code> using new symbols, you might see the &ldquo;Symbol not found&rdquo; error. If you had uninstalled the old version of your library first, you would likely see the &ldquo;Library not loaded&rdquo; error.</p>
+
+      <h2>Conclusion</h2>
+
+      <p>Back to the question we started with: &ldquo;How does the <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> function run?&rdquo;</p>
+
+      <p>The implementation for the <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> function exists in a library on the user's computer. The linker (<code>ld</code>) includes the path of that library in your binary. When your binary runs on the user's machine, the dynamic linker (<code>dyld</code>) loads the library from the path and gives the memory address of <code><span class="lsp-type-function lsp-modifier-defaultLibrary lsp-modifier-globalScope">puts</span></code> to your binary. The code in your binary is then able to jump to that address just like it would when calling any other function.</p>
+    </article>
+  </main>
+</body>
+
+</html>

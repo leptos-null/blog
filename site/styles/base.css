@@ -7,6 +7,10 @@
   --border: #dcdde0;
   --link: #0060df;
   --code-bg: #f8f8f8;
+  --code-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --diff-add: #1a7f37;
+  --diff-remove: #c22f2f;
+  --diff-mark-alpha: 15%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +21,9 @@
     --border: #34363c;
     --link: #6cb4ff;
     --code-bg: #262730;
+    --diff-add: #4ac26b;
+    --diff-remove: #ff6b6b;
+    --diff-mark-alpha: 20%;
   }
 }
 
@@ -44,6 +51,11 @@ main {
 body > header {
   padding-top: 2rem;
   margin-bottom: 2rem;
+}
+
+body.wide > header,
+body.wide main {
+  max-width: none;
 }
 
 main {
@@ -78,8 +90,17 @@ a {
   text-underline-offset: 0.15em;
 }
 
+a[href^="#"] {
+  text-decoration-style: dashed;
+}
+
 a:hover {
   text-decoration-thickness: 0.12em;
+}
+
+a[href^="#"]:hover {
+  text-decoration-style: solid;
+  text-decoration-thickness: 0.04em;
 }
 
 a:focus-visible {
@@ -92,11 +113,35 @@ math {
 }
 
 code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--code-font);
   font-size: 0.9em;
   background-color: var(--code-bg);
   padding: 0.15em 0.2em;
   border-radius: 0.25em;
+}
+
+code ins {
+  color: var(--diff-add);
+  text-decoration: none;
+}
+
+code del {
+  color: var(--diff-remove);
+  text-decoration: none;
+}
+
+code ins mark {
+  background-color: color-mix(in srgb, var(--diff-add) var(--diff-mark-alpha), transparent);
+  color: inherit;
+}
+
+code del mark {
+  background-color: color-mix(in srgb, var(--diff-remove) var(--diff-mark-alpha), transparent);
+  color: inherit;
+}
+
+.shell-prompt {
+  color: var(--fg-muted);
 }
 
 pre.codeblock {

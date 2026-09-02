@@ -1,0 +1,13 @@
+.ansi-bold {
+  font-weight: 700;
+}
+
+.ansi-red {
+  color: #c22f2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ansi-red {
+    color: #ff6b6b;
+  }
+}
