@@ -52,7 +52,7 @@
     <figure class="linking-diagram">
       <p class="chart-title">Dynamic linking</p>
       <svg viewBox="0 0 300 528" role="img" aria-labelledby="dynamic-linking-title" style="width: 260px; height: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;">
-        <title id="dynamic-linking-title">Diagram of dynamic linking: the hello binary contains _main, and libsystem_c.dylib contains _puts.</title>
+        <title id="dynamic-linking-title">Diagram of dynamic linking: the hello binary contains _main, and libSystem.B.dylib contains _puts.</title>
         <defs>
           <marker id="arrow-dynamic" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" fill="var(--fg-muted)" />
@@ -66,14 +66,14 @@
         <text x="56" y="106" fill="var(--caller-color)" font-size="18">_main</text>
 
         <rect x="10" y="284" width="280" height="234" rx="8" fill="none" stroke="var(--fg)" stroke-width="2" />
-        <text x="28" y="316" fill="var(--fg)" font-size="18" font-weight="600">libsystem_c.dylib</text>
+        <text x="28" y="316" fill="var(--fg)" font-size="18" font-weight="600">libSystem.B.dylib</text>
 
         <rect x="40" y="348" width="220" height="140" rx="6" fill="none" stroke="var(--callee-color)" stroke-width="2" />
         <text x="56" y="380" fill="var(--callee-color)" font-size="18">_puts</text>
 
         <path d="M 238 192 Q 300 274 235 373" fill="none" stroke="var(--fg-muted)" stroke-width="2" marker-end="url(#arrow-dynamic)" />
       </svg>
-      <figcaption><code>_main</code> lives in <code>hello</code>, but <code>_puts</code> lives in <code>libsystem_c.dylib</code>; the call crosses into another binary.</figcaption>
+      <figcaption><code>_main</code> lives in <code>hello</code>, but <code>_puts</code> lives in <code>libSystem.B.dylib</code>; the call crosses into another binary.</figcaption>
     </figure>
   </main>
 </body>
