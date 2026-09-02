@@ -1,0 +1,74 @@
+:root {
+  --code-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --code-bg: #f8f8f8;
+  --diff-add: #1a7f37;
+  --diff-remove: #c22f2f;
+  --diff-mark-alpha: 15%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --code-bg: #262730;
+    --diff-add: #4ac26b;
+    --diff-remove: #ff6b6b;
+    --diff-mark-alpha: 20%;
+  }
+}
+
+code {
+  font-family: var(--code-font);
+  font-size: 0.9em;
+  background-color: var(--code-bg);
+  padding: 0.15em 0.2em;
+  border-radius: 0.25em;
+}
+
+code ins {
+  color: var(--diff-add);
+  text-decoration: none;
+}
+
+code del {
+  color: var(--diff-remove);
+  text-decoration: none;
+}
+
+code ins mark {
+  background-color: color-mix(in srgb, var(--diff-add) var(--diff-mark-alpha), transparent);
+  color: inherit;
+}
+
+code del mark {
+  background-color: color-mix(in srgb, var(--diff-remove) var(--diff-mark-alpha), transparent);
+  color: inherit;
+}
+
+pre.codeblock {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  background-color: var(--code-bg);
+  border-radius: 0.5em;
+}
+
+pre code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.85em;
+  /* put the background-color in `pre` so that when scrolling on the block
+   * beyond the normal bounds, the background-color is still present.
+   * This felt more natural, in my testing.
+   */
+  background-color: transparent;
+  /* In my testing, on iOS WebKit (does not happen on macOS WebKit), setting `width: max-content`
+   * causes the text size to increase. These properties avoid that increase.
+   */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.shell-prompt {
+  color: var(--fg-muted);
+}
